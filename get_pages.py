@@ -9,19 +9,6 @@ URL = 'https://timeshop.by/naruchnyye-chasy/?page={}'
 page = 1
 
 
-# def load_pages(session, link):
-#     global page
-#     request = session.get(link.format(page))
-#     t = request.text
-#     hh = html.fromstring(t)
-#     if len(hh.xpath('//div[@id="res-products"]')) != 0:
-#         page += 1
-#         load_pages(session, link)
-#     else:
-#         page -= 1
-#     return page
-
-
 def last_page(session, link):
     request = session.get(link.format(1))
     data = request.text
@@ -31,17 +18,11 @@ def last_page(session, link):
     return max_num
 
 
-print(last_page(s, URL))
+def load_watches(link, session):
+    request = session.get(link)
+    return request.text
 
 
-
-
-
-# def load_watches(link, session):
-#     request = session.get(link)
-#     return request.text
-#
-#
 # def contain_watches_data(text):
 #     t = html.fromstring(text)
 #     watch_list = t.xpath('//div[@id="res-products"]')
