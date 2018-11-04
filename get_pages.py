@@ -2,8 +2,11 @@ import requests
 from lxml import html
 import re
 import threading
+import time
+import queue
 
 
+start = time.time()
 s = requests.Session()
 URL = 'https://timeshop.by/naruchnyye-chasy/?page={}'
 page = 1
@@ -15,44 +18,63 @@ def last_page(session, link):
     tree = html.fromstring(data)
     href_max_num = tree.xpath('.//ul[@class="pagination"]/li[11]/a/@href')
     max_num = re.search('[0-9]*$', href_max_num[0]).group()
-    return max_num
+    return int(max_num)
 
 
-def load_watches(link, session):
+def load_page(session, link):
     request = session.get(link)
     return request.text
 
 
-# def contain_watches_data(text):
-#     t = html.fromstring(text)
-#     watch_list = t.xpath('//div[@id="res-products"]')
-#     if len(watch_list) == 0:
-#         return False
-#     else:
-#         return True
+def load_html(session, link):
+    request = session.get(link)
+    data = request.text
+    tree = html.fromstring(data)
+    return tree
+
+
+def watches_href():
+    while True:
+        try:
+            data = shop_queue.get()
+        except queue.Empty:
+            break
+        else:
+            tree = load_html(s, data)
+            w_list = tree.xpath('//div[@class="product-thumb"]/*/a/@href')
+            all_watches_href.extend(w_list)
+
+
+shop_queue = queue.Queue()
+for i in range(1, last_page(s, URL)+1):
+    shop_queue.put(URL.format(i))
+
+
+all_watches_href = []
+
+for i in range(5):
+    thread = threading.Thread(target=watches_href)
+    thread.start()
+
+
+print(len(all_watches_href))
 #
 #
-# all_watches_href = []
-# while True:
-#     data = load_pages(s, URL)
-#     tree = html.fromstring(data)
-#     if contain_watches_data(data):
-#         w_list = tree.xpath('//div[@class="product-thumb"]/*/a/@href')
-#         all_watches_href.extend(w_list)
-#         page += 1
-#     else:
-#         break
-#
-#
-# num = 1
 # w_spec = {}
 # for href in all_watches_href:
-#     one_w_spec = []
-#     text = load_watches(href, s)
-#     h = html.fromstring(text)
-#     w_title = h.xpath('.//ul[@class="breadcrumb"]/li[4]/*/span[@itemprop="name"]/text()')[0]
-#     key_spec = h.xpath('.//div[@id="tab-specification"]//div[@class="col-xs-5"]//div/span/text()')
-#     val_spec = h.xpath('.//div[@id="tab-specification"]//div[@class="col-xs-7"]//div/text()')
+#     request = s.get(href)
+#     data = request.text
+#     tree = html.fromstring(data)
+#     try:
+#         w_title = tree.xpath('.//ul[@class="breadcrumb"]/li[4]/*/span[@itemprop="name"]/text()')[0]
+#     except Exception:
+#         w_title = 'No Name' + href
+#     key_spec = tree.xpath('.//div[@id="tab-specification"]//div[@class="col-xs-5"]//div/span/text()')
+#     val_spec = tree.xpath('.//div[@id="tab-specification"]//div[@class="col-xs-7"]//div/text()')
 #     item_spec = dict(zip(key_spec, val_spec))
 #     w_spec[w_title] = item_spec
-
+#
+#
+# print(w_spec.get('No Name', 'sorry'))
+finish = time.time()
+print(finish-start)
