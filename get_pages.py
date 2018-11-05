@@ -34,7 +34,7 @@ def load_html(session, link):
 
 
 def watches_href():
-    while True:
+    while not shop_queue.empty():
         try:
             data = shop_queue.get()
         except queue.Empty:
@@ -43,10 +43,10 @@ def watches_href():
             tree = load_html(s, data)
             w_list = tree.xpath('//div[@class="product-thumb"]/*/a/@href')
             all_watches_href.extend(w_list)
-            print(data)
-            print(threading.currentThread().getName())
-            pause = time.time()
-            print(pause-start)
+            # print(data)
+            # print(threading.currentThread().getName())
+            # pause = time.time()
+            # print(pause-start)
 
 
 shop_queue = queue.Queue()
