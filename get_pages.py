@@ -33,24 +33,24 @@ def load_html(session, link):
     return tree
 
 
+# def watches_href():
+#     while not shop_queue.empty():
+#         try:
+#             data = shop_queue.get()
+#         except queue.Empty:
+#             break
+#         else:
+#             tree = load_html(s, data)
+#             w_list = tree.xpath('//div[@class="product-thumb"]/*/a/@href')
+#             all_watches_href.extend(w_list)
 def watches_href():
-    while not shop_queue.empty():
-        try:
-            data = shop_queue.get()
-        except queue.Empty:
-            break
-        else:
-            tree = load_html(s, data)
-            w_list = tree.xpath('//div[@class="product-thumb"]/*/a/@href')
-            all_watches_href.extend(w_list)
-            # print(data)
-            # print(threading.currentThread().getName())
-            # pause = time.time()
-            # print(pause-start)
-
-
-shop_queue = queue.Queue()
-num = last_page(s, URL)
+    while True:
+        data = shop_queue.get()
+        tree = load_html(s, data)
+        w_list = tree.xpath('//div[@class="product-thumb"]/*/a/@href')
+        all_watches_href.extend(w_list)
+        shop_queue.task_done()
+        print(data)
 
 
 def url_gen():
@@ -58,19 +58,24 @@ def url_gen():
         yield URL.format(p)
 
 
-for i in url_gen():
-    shop_queue.put(i)
-
+shop_queue = queue.Queue()
+num = last_page(s, URL)
 all_watches_href = []
 
 wait = []
 for i in range(5):
     thread = threading.Thread(target=watches_href)
-    wait.append(thread)
+    thread.daemon = True
+    # wait.append(thread)
     thread.start()
 
-for i in wait:
-    i.join()
+for i in url_gen():
+    shop_queue.put(i)
+
+shop_queue.join()
+
+# for i in wait:
+#     i.join()
 
 print(len(all_watches_href))
 #
