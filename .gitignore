@@ -1,2 +1,3 @@
 static/watches/*.html
 .idea/
+test*.py

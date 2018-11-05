@@ -34,28 +34,47 @@ def load_html(session, link):
 
 
 def watches_href():
-    while True:
-        try:
-            data = shop_queue.get()
-        except queue.Empty:
-            break
-        else:
-            tree = load_html(s, data)
-            w_list = tree.xpath('//div[@class="product-thumb"]/*/a/@href')
-            all_watches_href.extend(w_list)
+    global num
+    while num >= 1:
+        data = URL.format(num)
+        tree = load_html(s, data)
+        w_list = tree.xpath('//div[@class="product-thumb"]/*/a/@href')
+        all_watches_href.extend(w_list)
+        num -= 1
+        print(num)
+        print(threading.currentThread().getName())
 
 
 shop_queue = queue.Queue()
-for i in range(1, last_page(s, URL)+1):
-    shop_queue.put(URL.format(i))
+num = last_page(s, URL)
+
+
+# def put_queue(url):
+#     global num
+#     while num >= 1:
+#         shop_queue.put(url)
+#         num -= 1
+#
+#
+# for i in range(5):
+#     lite_thread = threading.Thread(target=put_queue, args=URL.format(num))
+#     lite_thread.daemon = True
+#     lite_thread.start()
+# for i in range(1, last_page(s, URL)+1):
+#     shop_queue.put(URL.format(i))
+# shop_queue.join()
 
 
 all_watches_href = []
 
+waitfor = []
 for i in range(5):
     thread = threading.Thread(target=watches_href)
+    waitfor.append(thread)
     thread.start()
 
+for i in waitfor:
+    i.join()
 
 print(len(all_watches_href))
 #
@@ -65,10 +84,7 @@ print(len(all_watches_href))
 #     request = s.get(href)
 #     data = request.text
 #     tree = html.fromstring(data)
-#     try:
-#         w_title = tree.xpath('.//ul[@class="breadcrumb"]/li[4]/*/span[@itemprop="name"]/text()')[0]
-#     except Exception:
-#         w_title = 'No Name' + href
+#     w_title = tree.xpath('.//div[@id="product-info-right"]/h1[@class="product-header"]/text()')[0]
 #     key_spec = tree.xpath('.//div[@id="tab-specification"]//div[@class="col-xs-5"]//div/span/text()')
 #     val_spec = tree.xpath('.//div[@id="tab-specification"]//div[@class="col-xs-7"]//div/text()')
 #     item_spec = dict(zip(key_spec, val_spec))
