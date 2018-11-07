@@ -45,12 +45,12 @@ def load_html(session, link):
 #             all_watches_href.extend(w_list)
 def watches_href():
     while True:
-        data = shop_queue.get()
-        tree = load_html(s, data)
+        href = shop_queue.get()
+        tree = load_html(s, href)
         w_list = tree.xpath('//div[@class="product-thumb"]/*/a/@href')
         all_watches_href.extend(w_list)
         shop_queue.task_done()
-        print(data)
+        print(href)
 
 
 def url_gen():
@@ -62,7 +62,6 @@ shop_queue = queue.Queue()
 num = last_page(s, URL)
 all_watches_href = []
 
-wait = []
 for i in range(5):
     thread = threading.Thread(target=watches_href)
     thread.daemon = True
@@ -76,22 +75,39 @@ shop_queue.join()
 
 # for i in wait:
 #     i.join()
-
 print(len(all_watches_href))
-#
-#
-# w_spec = {}
-# for href in all_watches_href:
-#     request = s.get(href)
-#     data = request.text
-#     tree = html.fromstring(data)
-#     w_title = tree.xpath('.//div[@id="product-info-right"]/h1[@class="product-header"]/text()')[0]
-#     key_spec = tree.xpath('.//div[@id="tab-specification"]//div[@class="col-xs-5"]//div/span/text()')
-#     val_spec = tree.xpath('.//div[@id="tab-specification"]//div[@class="col-xs-7"]//div/text()')
-#     item_spec = dict(zip(key_spec, val_spec))
-#     w_spec[w_title] = item_spec
-#
-#
-# print(w_spec.get('No Name', 'sorry'))
+
+
+def specification():
+    while not watch_queue.empty():
+        href = watch_queue.get()
+        tree = load_html(s, href)
+        w_title = tree.xpath('.//div[@id="product-info-right"]/h1[@class="product-header"]/text()')[0]
+        key_spec = tree.xpath('.//div[@id="tab-specification"]//div[@class="col-xs-5"]//div/span/text()')
+        val_spec = tree.xpath('.//div[@id="tab-specification"]//div[@class="col-xs-7"]//div/text()')
+        item_spec = dict(zip(key_spec, val_spec))
+        w_spec[w_title] = item_spec
+        watch_queue.task_done()
+        print(w_title)
+
+
+def w_gen():
+    for u in all_watches_href:
+        yield u
+
+
+watch_queue = queue.Queue()
+w_spec = {}
+
+for i in w_gen():
+    watch_queue.put(i)
+
+for i in range(5):
+    thread = threading.Thread(target=specification())
+    thread.daemon = True
+    thread.start()
+
+watch_queue.join()
+
 finish = time.time()
 print(finish-start)
