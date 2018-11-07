@@ -33,16 +33,6 @@ def load_html(session, link):
     return tree
 
 
-# def watches_href():
-#     while not shop_queue.empty():
-#         try:
-#             data = shop_queue.get()
-#         except queue.Empty:
-#             break
-#         else:
-#             tree = load_html(s, data)
-#             w_list = tree.xpath('//div[@class="product-thumb"]/*/a/@href')
-#             all_watches_href.extend(w_list)
 def watches_href():
     while True:
         href = shop_queue.get()
@@ -91,15 +81,10 @@ def specification():
         print(w_title)
 
 
-def w_gen():
-    for u in all_watches_href:
-        yield u
-
-
 watch_queue = queue.Queue()
 w_spec = {}
 
-for i in w_gen():
+for i in all_watches_href:
     watch_queue.put(i)
 
 for i in range(5):
