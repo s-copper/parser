@@ -1,3 +1,5 @@
 static/watches/*.html
 .idea/
 test*.py
+*.xlsx
+*.exe

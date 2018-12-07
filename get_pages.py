@@ -4,6 +4,7 @@ import re
 import threading
 import time
 import queue
+import xlsxwriter
 
 
 start = time.time()
@@ -67,6 +68,12 @@ shop_queue.join()
 #     i.join()
 print(len(all_watches_href))
 
+all_watches_href2 = []
+
+for i in all_watches_href:
+    j = 'https://timeshop.by' + i
+    all_watches_href2.append(j)
+
 
 def specification():
     while not watch_queue.empty():
@@ -84,7 +91,7 @@ def specification():
 watch_queue = queue.Queue()
 w_spec = {}
 
-for i in all_watches_href:
+for i in all_watches_href2:
     watch_queue.put(i)
 
 for i in range(5):
@@ -96,3 +103,25 @@ watch_queue.join()
 
 finish = time.time()
 print(finish-start)
+
+workbook = xlsxwriter.Workbook('watch.xlsx')
+worksheet = workbook.add_worksheet('test_list')
+
+cell_format = workbook.add_format({'bold': True})
+cell_format.set_text_wrap()
+
+worksheet.write(0, 1, 'ZIKO watch')
+worksheet.set_column(0, 0, 20)
+worksheet.set_column(1, 0, 15)
+
+row = 2
+col = 0
+
+for i, j in w_spec.items():
+    worksheet.write(row, col, i, cell_format)
+    for n, k in j.items():
+        worksheet.write(row, col+1, n)
+        worksheet.write(row, col+2, k)
+        row += 1
+
+workbook.close()
