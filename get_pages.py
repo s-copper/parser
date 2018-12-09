@@ -119,6 +119,9 @@ col = 0
 
 for i, j in w_spec.items():
     worksheet.write(row, col, i, cell_format)
+    if not j:
+        row += 1
+        continue
     for n, k in j.items():
         worksheet.write(row, col+1, n)
         worksheet.write(row, col+2, k)
