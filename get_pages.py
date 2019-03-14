@@ -41,7 +41,6 @@ def watches_href():
         w_list = tree.xpath('//div[@class="product-thumb"]/*/a/@href')
         all_watches_href.extend(w_list)
         shop_queue.task_done()
-        print(href)
 
 
 def url_gen():
@@ -64,17 +63,17 @@ for i in url_gen():
 
 shop_queue.join()
 
-# for i in wait:
-#     i.join()
+print(time.time()-start)
 print(len(all_watches_href))
 
-all_watches_href2 = []
 
-for i in all_watches_href:
-    j = 'https://timeshop.by' + i
-    all_watches_href2.append(j)
-
-
+# all_watches_href2 = []
+#
+# for i in all_watches_href:
+#     j = 'https://timeshop.by' + i
+#     all_watches_href2.append(j)
+#
+#
 def specification():
     while not watch_queue.empty():
         href = watch_queue.get()
@@ -91,7 +90,7 @@ def specification():
 watch_queue = queue.Queue()
 w_spec = {}
 
-for i in all_watches_href2:
+for i in all_watches_href:
     watch_queue.put(i)
 
 for i in range(5):

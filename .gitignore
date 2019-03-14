@@ -1,5 +1,6 @@
 static/watches/*.html
 .idea/
-test*.py
+test*.*
 *.xlsx
 *.exe
+*.sublime-*

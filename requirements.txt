@@ -3,13 +3,11 @@ bs4==0.0.1
 certifi==2018.10.15
 chardet==3.0.4
 defusedxml==0.5.0
-grab==0.6.41
 html5lib==1.0.1
 idna==2.7
 lml==0.0.7
 lxml==4.2.5
 psycopg2==2.7.6.1
-pycurl==7.43.0.2
 pyexcel==0.5.10
 pyexcel-io==0.5.11
 pyexcel-xls==0.5.8
