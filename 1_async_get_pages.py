@@ -27,7 +27,7 @@ async def get_watches_url(asession, link):
         data = await response.text()
         try:
             tree = html.fromstring(data)
-        except etree.ParseError:
+        except etree.ParserError:
             print(link)
         all_watches_urls.extend(tree.xpath('//div[@class="product-thumb"]/*/a/@href'))
 
