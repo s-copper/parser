@@ -23,7 +23,7 @@ selenium==3.141.0
 six==1.11.0
 texttable==1.5.0
 typing-extensions==3.7.2
-urllib3==1.24
+urllib3==1.26.5
 user-agent==0.1.9
 webencodings==0.5.1
 weblib==0.1.30
